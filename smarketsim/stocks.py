@@ -41,9 +41,23 @@ def _get_change(base, ticker, step):
     return stock
 
 
+def _add_market_days(changes):
+    days = []
+    for ticker in changes:
+        for date in changes[ticker]["Index"]:
+            if date not in days:
+                days.append(date)
+    days.sort()
+    changes["_market_day"] = {}
+    for i in range(0, len(days)):
+        changes["_market_day"][i] = days[i]
+    return changes
+
+
 def get_changes(base, tickers, step, date, downloads):
     _update_prices(base, tickers, date, downloads)
     changes = {}
     for ticker in tickers:
         changes[ticker] = _get_change(base, ticker, step)
+    changes = _add_market_days(changes)
     return changes
