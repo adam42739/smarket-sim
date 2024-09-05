@@ -1,5 +1,6 @@
 import yfscraper
 import math
+import pandas
 
 
 def _ticker_to_get(base, tickers, date):
@@ -19,45 +20,28 @@ def _update_prices(base, tickers, date, downloads):
         yfscraper.download_data(to_get, downloads, base)
 
 
-def _get_stock(base, ticker):
+def _get_price(base, ticker):
     price = yfscraper.get_data(ticker, base)
-    price["Index"] = price.index.values
-    index = price[["Date", "Index"]]
-    index = index.set_index("Date")
-    index = index.to_dict()
-    price = price[["Close"]]
-    price = price.to_dict()
-    return {"Index": index["Index"], "Price": price["Close"]}
+    price = price[["Date", "Close"]]
+    return price
 
 
-def _get_change(base, ticker, step):
-    stock = _get_stock(base, ticker)
-    stock["Change"] = {}
-    max_index = max(stock["Price"].keys())
+def _get_change(base, ticker, step, df_dict):
+    df_dict[ticker] = {}
+    price = _get_price(base, ticker)
+    max_index = int(price.index.values.max())
     i = max_index
     while i >= step:
-        stock["Change"][i] = math.log(stock["Price"][i] / stock["Price"][i - step])
+        df_dict[ticker][price.at[i, "Date"]] = math.log(
+            price.at[i, "Close"] / price.at[i - step, "Close"]
+        )
         i -= 1
-    return stock
-
-
-def _add_market_days(changes):
-    days = []
-    for ticker in changes:
-        for date in changes[ticker]["Index"]:
-            if date not in days:
-                days.append(date)
-    days.sort()
-    changes["_market_day"] = {}
-    for i in range(0, len(days)):
-        changes["_market_day"][i] = days[i]
-    return changes
+    return df_dict
 
 
 def get_changes(base, tickers, step, date, downloads):
     _update_prices(base, tickers, date, downloads)
-    changes = {}
+    df_dict = {}
     for ticker in tickers:
-        changes[ticker] = _get_change(base, ticker, step)
-    changes = _add_market_days(changes)
-    return changes
+        df_dict = _get_change(base, ticker, step, df_dict)
+    return pandas.DataFrame(df_dict)
