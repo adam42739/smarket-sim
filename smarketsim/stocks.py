@@ -29,7 +29,7 @@ def _get_price(base, ticker):
 def _get_change(base, ticker, step, df_dict):
     df_dict[ticker] = {}
     price = _get_price(base, ticker)
-    max_index = int(price.index.values.max())
+    max_index = price.index.values.max()
     i = max_index
     while i >= step:
         df_dict[ticker][price.at[i, "Date"]] = math.log(
