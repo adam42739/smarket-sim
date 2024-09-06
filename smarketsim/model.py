@@ -40,9 +40,9 @@ class Model:
             samp[self.metadata[i]["ticker"]] = 0
         return samp
 
-    def sample(self, days):
+    def sample(self, amount):
         samp = self._init_sample()
-        for i in range(0, days):
+        for i in range(0, amount):
             y = self._sample_ndarray()
             for j in self.metadata:
                 samp[self.metadata[j]["ticker"]] += y[j]
