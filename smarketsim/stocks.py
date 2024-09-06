@@ -21,22 +21,29 @@ def _update_prices(base, tickers, date, downloads):
 
 
 def _get_price(base, ticker):
-    price = yfscraper.get_data(ticker, base)
-    price = price[["Date", "Close"]]
-    return price
+    metadata = yfscraper.get_metadata(base)
+    if ticker in metadata:
+        price = yfscraper.get_data(ticker, base)
+        price = price[["Date", "Close"]]
+        return price
+    else:
+        return pandas.DataFrame
 
 
 def _get_change(base, ticker, step, df_dict):
     df_dict[ticker] = {}
     price = _get_price(base, ticker)
-    max_index = price.index.values.max()
-    i = max_index
-    while i >= step:
-        df_dict[ticker][price.at[i, "Date"]] = math.log(
-            price.at[i, "Close"] / price.at[i - step, "Close"]
-        )
-        i -= 1
-    return df_dict
+    if price.empty:
+        max_index = price.index.values.max()
+        i = max_index
+        while i >= step:
+            df_dict[ticker][price.at[i, "Date"]] = math.log(
+                price.at[i, "Close"] / price.at[i - step, "Close"]
+            )
+            i -= 1
+        return df_dict
+    else:
+        return None
 
 
 def get_changes(base, tickers, step, date, downloads):
@@ -44,4 +51,6 @@ def get_changes(base, tickers, step, date, downloads):
     df_dict = {}
     for ticker in tickers:
         df_dict = _get_change(base, ticker, step, df_dict)
+        if df_dict == None:
+            return None
     return pandas.DataFrame(df_dict)

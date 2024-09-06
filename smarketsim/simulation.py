@@ -24,14 +24,17 @@ class Simulation:
 
     def _get_changes(self, base, downloads, tickers, date, step, look_back):
         self.changes = stocks.get_changes(base, tickers, step, date, downloads)
-        self.changes = _get_change_subset(self.changes, date, look_back)
-        if len(self.changes) == look_back:
-            self.numna = {}
-            for ticker in self.changes:
-                numna = self.changes[ticker].isna().sum()
-                self.changes[ticker] = self.changes[ticker].fillna(0)
-                self.numna[ticker] = numna
-            return True
+        if self.changes:
+            self.changes = _get_change_subset(self.changes, date, look_back)
+            if len(self.changes) == look_back:
+                self.numna = {}
+                for ticker in self.changes:
+                    numna = self.changes[ticker].isna().sum()
+                    self.changes[ticker] = self.changes[ticker].fillna(0)
+                    self.numna[ticker] = numna
+                return True
+            else:
+                return False
         else:
             return False
 
