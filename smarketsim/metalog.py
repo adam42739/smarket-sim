@@ -75,11 +75,15 @@ class Metalog:
 
     def _correct_lr_avg(self, lr_avg):
         self.lr_corr = 0
-        COUNT = 10000
-        tot = 0
-        for i in range(0, COUNT):
-            tot += self.sample()
-        avg = tot / COUNT
+        STEP = 0.001
+        p = STEP / 2
+        count = 0
+        avg = 0
+        while p < 1:
+            avg += self.quantile(p)
+            p += STEP
+            count += 1
+        avg /= count
         self.lr_corr = lr_avg - avg
 
     def fit(self, x, lr_avg):
