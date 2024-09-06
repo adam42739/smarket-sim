@@ -109,8 +109,11 @@ class Portfolio:
                 )
 
     def sim_est_perc(self, x, model_index):
-        count = 0
-        for samp in self.samps[model_index]:
-            if x > samp:
-                count += 1
-        return (count + 0.5) / (len(self.samps[model_index]) + 1.0)
+        if self.samps[model_index]:
+            count = 0
+            for samp in self.samps[model_index]:
+                if x > samp:
+                    count += 1
+            return (count + 0.5) / (len(self.samps[model_index]) + 1.0)
+        else:
+            return None
