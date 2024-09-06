@@ -27,10 +27,23 @@ class Model:
         self.mlog_dim = mlog_dim
         self._fit_model()
 
-    def sample(self):
+    def _sample_ndarray(self):
         y = numpy.random.multivariate_normal(numpy.zeros(len(self.metadata)), self.cov)
         y = scipy.stats.norm.cdf(y)
-        samp = {}
         for i in range(0, len(y)):
-            samp[self.metadata[i]["ticker"]] = self.metadata[i]["mlog"].quantile(y[i])
+            y[i] = self.metadata[i]["mlog"].quantile(y[i])
+        return y
+
+    def _init_sample(self):
+        samp = {}
+        for i in self.metadata:
+            samp[self.metadata[i]["ticker"]] = 0
+        return samp
+
+    def sample(self, days):
+        samp = self._init_sample()
+        for i in range(0, days):
+            y = self._sample_ndarray()
+            for j in self.metadata:
+                samp[self.metadata[j]["ticker"]] += y[j]
         return samp
