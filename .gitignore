@@ -1,5 +1,5 @@
-env
-main.py
-base
-smarketsim/__pycache__
-sim_files
+/env
+/main.py
+/base
+/smarketsim/__pycache__
+/sim_files
