@@ -47,17 +47,20 @@ class Simulation:
         mlog_dim,
         numna_thresh,
     ):
-        self._get_changes(base, downloads, tickers, date, step, look_back)
-        fail = False
-        for ticker in self.numna:
-            if self.numna[ticker] > numna_thresh:
-                fail = True
-        if fail:
-            return False
+        success = self._get_changes(base, downloads, tickers, date, step, look_back)
+        if success:
+            fail = False
+            for ticker in self.numna:
+                if self.numna[ticker] > numna_thresh:
+                    fail = True
+            if fail:
+                return False
+            else:
+                self.model = model.Model()
+                self.model.fit(self.changes, mlog_dim, lr_rate)
+                return True
         else:
-            self.model = model.Model()
-            self.model.fit(self.changes, mlog_dim, lr_rate)
-            return True
+            return False
 
     def sim_forward(self, amount):
         return self.model.sample(amount)

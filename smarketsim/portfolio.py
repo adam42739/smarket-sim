@@ -2,6 +2,7 @@ from smarketsim import simulation
 import math
 import json
 import datetime
+import numpy
 
 YEAR_LR_RATE = 1.07
 DAILY_LR_RATE = math.log(1.07) / 252
@@ -35,6 +36,7 @@ class Portfolio:
         self.stocks = write_dict["stocks"]
         self.date = datetime.datetime.strptime(write_dict["date"], "%Y%m%d")
         self.samps = dict(write_dict["samps"])
+        self.samps = {int(i): self.samps[i] for i in self.samps}
 
     def init_sim(self, base, downloads, stocks, date):
         self.base = base
@@ -84,3 +86,25 @@ class Portfolio:
         }
         with open(path, "w") as file:
             json.dump(write_dict, file)
+
+    def sim_summarize(self):
+        for i in MODELS:
+            if self.samps[i]:
+                print(
+                    "Analysis: Next "
+                    + str(MODELS[i][FORWARD] * MODELS[i][STEP])
+                    + " Days:"
+                )
+                vol = (math.exp(numpy.std(self.samps[i])) - 1) * 100
+                print("    Volatility: ", "{:.2f}".format(vol), "%")
+                bot = (math.exp(numpy.percentile(self.samps[i], 5)) - 1) * 100
+                print("    Bottom 5% Performance: ", "{:.2f}".format(bot), "%")
+                top = (math.exp(numpy.percentile(self.samps[i], 95)) - 1) * 100
+                print("    Top 5% Performance: ", "{:.2f}".format(top), "%")
+            else:
+                print(
+                    "Failed to get analysis for the next "
+                    + str(MODELS[i][FORWARD] * MODELS[i][STEP])
+                    + " Days."
+                )
+        return
