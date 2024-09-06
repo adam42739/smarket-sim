@@ -10,7 +10,7 @@ setup(
     license="MIT License",
     packages=["smarketsim"],
     install_requires=[
-        "git+https://github.com/adam42739/yf-scraper.git#egg=yfscraper",
+        "yfscraper",
         "numpy>=2.1.1",
     ],
     classifiers=[
