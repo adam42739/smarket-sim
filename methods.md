@@ -21,7 +21,7 @@ Here $M_i$ represents the metalog quantile function associated with the fitted m
 Compute the correlation matrix for the set of price change vectors.
 
 $$
-S=Corr(\{X_1,X_2,...,X_3\})
+S=Corr(\{X_1,X_2,...,X_n\})
 $$
 
 Now sample from the multivate normal distribution
@@ -30,7 +30,7 @@ $$
 Y\sim MultiNorm(\mu=\vec{0},\ \Sigma=S)
 $$
 
-Apply the univariate normal CDF element-wise to $Y$ to get a percentile vector.
+Apply the univariate normal CDF, element-wise, to $Y$ to get a percentile vector.
 
 $$
 Z=NormCDF(Y)

@@ -2,7 +2,7 @@
 
 ## Note
 
-Since Yahoo Finance historical data has become a paid service, [yf-scraper](https://github.com/adam42739/yf-scraper) no longer works. Price CSV files must be downloaded manually to a directory for smarket-sim to function properly.
+Since Yahoo Finance historical data has become a paid service, [yf-scraper](https://github.com/adam42739/yf-scraper) no longer works. Price CSV files must be downloaded manually to a directory for smarket-sim to work properly.
 
 ## Introduction
 
