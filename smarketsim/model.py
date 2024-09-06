@@ -1,8 +1,8 @@
 from smarketsim import metalog
 import numpy
-from numpy.random import multivariate_normal
 import pandas
 import datetime
+import scipy.stats
 
 
 def _get_change_subset(changes, date, look_back):
@@ -34,7 +34,8 @@ class Model:
             stacker.append(series)
             mlog = metalog.Metalog(self.mlog_dim)
             mlog.fit(series.values)
-            self.metadata[ticker] = {"index": i, "num_na": numna, "mlog": mlog}
+            self.metadata[i] = {"ticker": ticker, "num_na": numna, "mlog": mlog}
+            i += 1
         X = numpy.stack(stacker, axis=0)
         self.mu = numpy.mean(X, axis=1)
         self.cov = numpy.corrcoef(X)
@@ -48,7 +49,11 @@ class Model:
             return True
         else:
             return False
-        
+
     def sample(self):
-        samp = multivariate_normal(self.mu, self.cov)
-        return
+        y = numpy.random.multivariate_normal(self.mu, self.cov)
+        y = scipy.stats.norm.cdf(y)
+        samp = {}
+        for i in range(0, len(y)):
+            samp[self.metadata[i]["ticker"]] = self.metadata[i]["mlog"].quantile(y[i])
+        return samp
