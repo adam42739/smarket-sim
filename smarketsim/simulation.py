@@ -4,9 +4,6 @@ import pandas
 import datetime
 
 
-import numpy
-
-
 def _get_change_subset(changes, date, look_back):
     changes.index = pandas.to_datetime(changes.index)
     date_min = pandas.Timestamp(changes.index.min())
@@ -39,11 +36,28 @@ class Simulation:
             return False
 
     def fit_sim(
-        self, base, downloads, tickers, date, step, look_back, lr_rate, mlog_dim
+        self,
+        base,
+        downloads,
+        tickers,
+        date,
+        step,
+        look_back,
+        lr_rate,
+        mlog_dim,
+        numna_thresh,
     ):
         self._get_changes(base, downloads, tickers, date, step, look_back)
-        self.model = model.Model()
-        self.model.fit(self.changes, mlog_dim, lr_rate)
+        fail = False
+        for ticker in self.numna:
+            if self.numna[ticker] > numna_thresh:
+                fail = True
+        if fail:
+            return False
+        else:
+            self.model = model.Model()
+            self.model.fit(self.changes, mlog_dim, lr_rate)
+            return True
 
-    def sim_days(self, days):
-        return self.model.sample(days)
+    def sim_forward(self, amount):
+        return self.model.sample(amount)
