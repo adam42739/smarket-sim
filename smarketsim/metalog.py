@@ -65,7 +65,7 @@ class Metalog:
         value = 0
         for k in range(0, len(self._alpha)):
             value += self._alpha[k] * _quantile_kth_term(y, k + 1)
-        return value
+        return value + self.lr_corr
 
     def sample(self):
         rng = random.random()
@@ -73,7 +73,17 @@ class Metalog:
             rng = random.random()
         return self.quantile(rng)
 
-    def fit(self, x):
+    def _correct_lr_avg(self, lr_avg):
+        self.lr_corr = 0
+        COUNT = 10000
+        tot = 0
+        for i in range(0, COUNT):
+            tot += self.sample()
+        avg = tot / COUNT
+        self.lr_corr = lr_avg - avg
+
+    def fit(self, x, lr_avg):
         x, Y = _get_quantile_vector(x)
         X = _get_X_lstsqr(Y, self._dim)
         self._alpha = numpy.linalg.lstsq(X, x, rcond=None)[0]
+        self._correct_lr_avg(lr_avg)
