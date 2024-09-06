@@ -38,7 +38,12 @@ class Simulation:
         else:
             return False
 
-    def sim(self, base, downloads, tickers, date, step, look_back, lr_rate, mlog_dim):
+    def fit_sim(
+        self, base, downloads, tickers, date, step, look_back, lr_rate, mlog_dim
+    ):
         self._get_changes(base, downloads, tickers, date, step, look_back)
         self.model = model.Model()
         self.model.fit(self.changes, mlog_dim, lr_rate)
+
+    def sim_days(self, days):
+        return self.model.sample(days)
