@@ -107,4 +107,10 @@ class Portfolio:
                     + str(MODELS[i][FORWARD] * MODELS[i][STEP])
                     + " Days."
                 )
-        return
+
+    def sim_est_perc(self, x, model_index):
+        count = 0
+        for samp in self.samps[model_index]:
+            if x > samp:
+                count += 1
+        return (count + 0.5) / (len(self.samps[model_index]) + 1.0)
