@@ -1,5 +1,7 @@
 from smarketsim import simulation
 import math
+import json
+import datetime
 
 YEAR_LR_RATE = 1.07
 DAILY_LR_RATE = math.log(1.07) / 252
@@ -22,7 +24,19 @@ MONTE_SIM_NUM = 1000
 
 
 class Portfolio:
-    def __init__(self, base, downloads, stocks, date):
+    def __init__(self):
+        return
+
+    def from_file(self, _dir, name):
+        path = _dir + name + ".json"
+        write_dict = {}
+        with open(path, "r") as file:
+            write_dict = json.load(file)
+        self.stocks = write_dict["stocks"]
+        self.date = datetime.datetime.strptime(write_dict["date"], "%Y%m%d")
+        self.samps = dict(write_dict["samps"])
+
+    def init_sim(self, base, downloads, stocks, date):
         self.base = base
         self.downloads = downloads
         self.stocks = stocks
@@ -53,10 +67,20 @@ class Portfolio:
         if self._fit_model(model_index):
             for i in range(0, MONTE_SIM_NUM):
                 raw_samp = self.sim.sim_forward(MODELS[model_index][FORWARD])
-                self.samps[model_index].append(self._raw_to_value(raw_samp))
+                self.samps[model_index].append(float(self._raw_to_value(raw_samp)))
         else:
             self.samps[model_index] = None
 
     def sim_models(self):
         for i in MODELS:
             self._sim_model(i)
+
+    def to_file(self, _dir, name):
+        path = _dir + name + ".json"
+        write_dict = {
+            "stocks": self.stocks,
+            "date": datetime.datetime.strftime(self.date, "%Y%m%d"),
+            "samps": self.samps,
+        }
+        with open(path, "w") as file:
+            json.dump(write_dict, file)
