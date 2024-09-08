@@ -12,6 +12,7 @@ setup(
     install_requires=[
         "yfscraper",
         "numpy>=2.1.1",
+        "scipy>=1.14.1"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

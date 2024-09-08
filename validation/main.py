@@ -20,7 +20,6 @@ def _get_tickers():
 
 def download_all_tickers(end_date):
     tickers = _get_tickers()
-    tickers = tickers[0:5]
     failed = yfscraper.v2.download_data(tickers, BASE, end_date)
     with open(FAILED, "w") as file:
         json.dump(failed, file)
