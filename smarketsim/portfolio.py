@@ -64,7 +64,7 @@ class Portfolio:
     def _raw_to_value(self, raw_samp):
         val = 0
         for ticker in self.stocks:
-            val += raw_samp[ticker] * self.stocks[ticker]
+            val += numpy.exp(raw_samp[ticker]) * self.stocks[ticker]
         return val
 
     def _sim_model(self, model_index):
