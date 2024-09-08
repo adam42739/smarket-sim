@@ -75,7 +75,7 @@ class Metalog:
 
     def _correct_lr_avg(self, lr_avg):
         self.lr_corr = 0
-        STEP = 0.001
+        STEP = 0.0001
         p = STEP / 2
         count = 0
         avg = 0

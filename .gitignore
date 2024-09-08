@@ -6,3 +6,5 @@
 /validation/base
 /validation/failed.json
 /validation/sim_files
+/build
+/smarketsim.egg-info
