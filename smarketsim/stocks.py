@@ -3,9 +3,6 @@ import math
 import pandas
 import datetime
 
-import yfscraper.v1
-import yfscraper.v2
-
 
 def _ticker_to_get(base, tickers, date):
     metadata = yfscraper.v2.get_metadata(base)
