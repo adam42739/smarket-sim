@@ -3,3 +3,5 @@
 /base
 /smarketsim/__pycache__
 /sim_files
+/validation/base
+/validation/failed.json
