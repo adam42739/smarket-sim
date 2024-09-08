@@ -3,6 +3,7 @@ import yfscraper
 import json
 import datetime
 import random
+import numpy
 
 
 TICKERS = "validation/tickers.json"
@@ -11,6 +12,7 @@ BASE = "validation/base/"
 SIM_FILES = "validation/sim_files/"
 SIM_PERCS = "validation/sim_percs.json"
 
+START_DATE = datetime.datetime(1990, 1, 1)
 END_DATE = datetime.datetime(2024, 9, 1)
 
 
@@ -57,7 +59,7 @@ def get_avail_tickers(date):
 
 def random_port(date, port_size_max):
     tickers = get_avail_tickers(date)
-    if len(tickers) > 0:
+    if len(tickers) > 2:
         random.shuffle(tickers)
         port = {}
         for i in range(0, random.randrange(2, min(port_size_max, len(tickers)))):
@@ -79,16 +81,16 @@ def get_changes(tickers, date, days_out):
 def port_perf_real(port, date, days_out):
     changes = get_changes(list(port.keys()), date, days_out)
     changes["_INDEX"] = 1
-    changes["_PORT"] = 0
-    for ticker in changes.columns:
-        if ticker != "_PORT" and ticker != "_INDEX":
-            changes["_PORT"] += changes[ticker] * port[ticker]
-    changes = changes[["_PORT", "_INDEX"]]
     last_index = None
     for date_index in changes.index.values:
         if last_index:
             changes.loc[date_index] += changes.loc[last_index]
         last_index = date_index
+    changes["_PORT"] = 0
+    for ticker in changes.columns:
+        if ticker != "_PORT" and ticker != "_INDEX":
+            changes["_PORT"] += numpy.exp(changes[ticker]) * port[ticker]
+    changes = changes[["_PORT", "_INDEX"]]
     changes = changes.set_index("_INDEX")
     return changes
 
@@ -129,7 +131,10 @@ def rng_date():
         * smarketsim.MODELS[len(smarketsim.MODELS)][smarketsim.FORWARD]
     )
     forward_days = int(365 / 252 * forward + 10)
-    return END_DATE - datetime.timedelta(forward_days)
+    MAX_DATE = END_DATE - datetime.timedelta(forward_days)
+    days_diff = (MAX_DATE - START_DATE).days
+    rng_days = random.randrange(0, days_diff)
+    return START_DATE + datetime.timedelta(rng_days)
 
 
 def validate_random(max_port_size, num):
@@ -143,6 +148,23 @@ def validate_random(max_port_size, num):
             percs[len(percs)] = valid_perc
             with open(SIM_PERCS, "w") as file:
                 json.dump(percs, file)
+
+
+def load_percs():
+    percs = {}
+    with open(SIM_PERCS, "r") as file:
+        percs = dict(json.load(file))
+    return percs
+
+
+def agg_percs(percs):
+    agged = {}
+    for index in percs:
+        for model_index in percs[index]:
+            if model_index not in agged:
+                agged[model_index] = []
+            agged[model_index].append(percs[index][model_index])
+    return agged
 
 
 validate_random(30, 5)
