@@ -7,3 +7,4 @@ from smarketsim.portfolio import NUMNA
 from smarketsim.portfolio import MODELS
 from smarketsim.portfolio import MONTE_SIM_NUM
 from smarketsim.portfolio import Portfolio
+from smarketsim.stocks import get_changes
