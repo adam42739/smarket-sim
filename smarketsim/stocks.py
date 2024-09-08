@@ -1,10 +1,14 @@
 import yfscraper
 import math
 import pandas
+import datetime
+
+import yfscraper.v1
+import yfscraper.v2
 
 
 def _ticker_to_get(base, tickers, date):
-    metadata = yfscraper.get_metadata(base)
+    metadata = yfscraper.v2.get_metadata(base)
     to_get = []
     for ticker in tickers:
         if ticker not in metadata:
@@ -14,26 +18,26 @@ def _ticker_to_get(base, tickers, date):
     return to_get
 
 
-def _update_prices(base, tickers, date, downloads):
+def _update_prices(base, tickers, date):
     to_get = _ticker_to_get(base, tickers, date)
     if len(to_get) > 0:
-        yfscraper.download_data(to_get, downloads, base)
+        yfscraper.v2.download_data(to_get, base, datetime.datetime.today())
 
 
 def _get_price(base, ticker):
-    metadata = yfscraper.get_metadata(base)
+    metadata = yfscraper.v2.get_metadata(base)
     if ticker in metadata:
-        price = yfscraper.get_data(ticker, base)
+        price = yfscraper.v2.get_data(ticker, base)
         price = price[["Date", "Close"]]
         return price
     else:
-        return pandas.DataFrame
+        return pandas.DataFrame()
 
 
 def _get_change(base, ticker, step, df_dict):
     df_dict[ticker] = {}
     price = _get_price(base, ticker)
-    if price.empty:
+    if not price.empty:
         max_index = price.index.values.max()
         i = max_index
         while i >= step:
@@ -46,8 +50,9 @@ def _get_change(base, ticker, step, df_dict):
         return None
 
 
-def get_changes(base, tickers, step, date, downloads):
-    _update_prices(base, tickers, date, downloads)
+def get_changes(base, tickers, step, date):
+    tickers = yfscraper.v2.yahoo_format(tickers)
+    _update_prices(base, tickers, date)
     df_dict = {}
     for ticker in tickers:
         df_dict = _get_change(base, ticker, step, df_dict)

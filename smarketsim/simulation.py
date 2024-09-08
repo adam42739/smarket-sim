@@ -22,9 +22,9 @@ class Simulation:
     def __init__(self):
         return
 
-    def _get_changes(self, base, downloads, tickers, date, step, look_back):
-        self.changes = stocks.get_changes(base, tickers, step, date, downloads)
-        if self.changes:
+    def _get_changes(self, base, tickers, date, step, look_back):
+        self.changes = stocks.get_changes(base, tickers, step, date)
+        if not self.changes.empty:
             self.changes = _get_change_subset(self.changes, date, look_back)
             if len(self.changes) == look_back:
                 self.numna = {}
@@ -41,7 +41,6 @@ class Simulation:
     def fit_sim(
         self,
         base,
-        downloads,
         tickers,
         date,
         step,
@@ -50,7 +49,7 @@ class Simulation:
         mlog_dim,
         numna_thresh,
     ):
-        success = self._get_changes(base, downloads, tickers, date, step, look_back)
+        success = self._get_changes(base, tickers, date, step, look_back)
         if success:
             fail = False
             for ticker in self.numna:

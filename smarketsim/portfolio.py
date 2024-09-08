@@ -3,6 +3,7 @@ import math
 import json
 import datetime
 import numpy
+import yfscraper
 
 YEAR_LR_RATE = 1.07
 DAILY_LR_RATE = math.log(1.07) / 252
@@ -38,10 +39,12 @@ class Portfolio:
         self.samps = dict(write_dict["samps"])
         self.samps = {int(i): self.samps[i] for i in self.samps}
 
-    def init_sim(self, base, downloads, stocks, date):
+    def init_sim(self, base, stocks, date):
         self.base = base
-        self.downloads = downloads
-        self.stocks = stocks
+        self.stocks = {
+            yfscraper.v2.yahoo_ticker_format(ticker): stocks[ticker]
+            for ticker in stocks
+        }
         self.date = date
         self.samps = {i: [] for i in MODELS}
 
@@ -49,7 +52,6 @@ class Portfolio:
         self.sim = simulation.Simulation()
         return self.sim.fit_sim(
             self.base,
-            self.downloads,
             list(self.stocks.keys()),
             self.date,
             MODELS[model_index][STEP],
