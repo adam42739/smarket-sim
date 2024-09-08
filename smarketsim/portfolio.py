@@ -97,11 +97,12 @@ class Portfolio:
                     + str(MODELS[i][FORWARD] * MODELS[i][STEP])
                     + " Days:"
                 )
-                vol = (math.exp(numpy.std(self.samps[i])) - 1) * 100
+                starting_val = numpy.sum(list(self.stocks.values()))
+                vol = numpy.std(self.samps[i]) / pow(starting_val, 2) * 100
                 print("    Volatility: ", "{:.2f}".format(vol), "%")
-                bot = (math.exp(numpy.percentile(self.samps[i], 5)) - 1) * 100
+                bot = (numpy.percentile(self.samps[i], 5) / starting_val - 1) * 100
                 print("    Bottom 5% Performance: ", "{:.2f}".format(bot), "%")
-                top = (math.exp(numpy.percentile(self.samps[i], 95)) - 1) * 100
+                top = (numpy.percentile(self.samps[i], 95) / starting_val - 1) * 100
                 print("    Top 5% Performance: ", "{:.2f}".format(top), "%")
             else:
                 print(
