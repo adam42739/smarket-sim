@@ -10,7 +10,7 @@ def _ticker_to_get(base, tickers, date):
     for ticker in tickers:
         if ticker not in metadata:
             to_get.append(ticker)
-        elif metadata[ticker] < date:
+        elif metadata[ticker]["end_date"] < date:
             to_get.append(ticker)
     return to_get
 
