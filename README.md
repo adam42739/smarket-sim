@@ -1,9 +1,5 @@
 # smarket-sim
 
-## Note
-
-Since Yahoo Finance historical data has become a paid service, [yf-scraper](https://github.com/adam42739/yf-scraper) no longer works. Price CSV files must be downloaded manually to a directory for smarket-sim to work properly.
-
 ## Introduction
 
 smarket-sim uses historical stock price data to simulate the volatility and correlation of stocks in the future. This can be useful for determining riskiness of a portfolio since it depends on volatility and correlation.
@@ -31,7 +27,6 @@ Initalize the portfolio with stock data.
 ```python
 port.init_sim(
     "base/",
-    "C:/Users/user1/Downloads/",
     {
         "aapl": 0.5
         "msft": 0.25
