@@ -8,6 +8,8 @@ For more information about how smarket-sim works, please see [methods](methods.m
 
 ## Installation
 
+Ensure [yf-scraper](https://github.com/adam42739/yf-scraper) is installed before proceeding.
+
 ```python
 pip install git+https://github.com/adam42739/smarket-sim.git#egg=smarketsim
 ```
