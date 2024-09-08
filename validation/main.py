@@ -2,6 +2,7 @@ import smarketsim
 import yfscraper
 import json
 import datetime
+import random
 
 
 TICKERS = "validation/tickers.json"
@@ -11,7 +12,7 @@ BASE = "validation/base/"
 END_DATE = datetime.datetime(2024, 9, 1)
 
 
-def _get_tickers():
+def get_tickers():
     tickers = None
     with open(TICKERS, "r") as file:
         tickers = list(json.load(file))
@@ -19,10 +20,80 @@ def _get_tickers():
 
 
 def download_all_tickers(end_date):
-    tickers = _get_tickers()
+    tickers = get_tickers()
     failed = yfscraper.v2.download_data(tickers, BASE, end_date)
     with open(FAILED, "w") as file:
         json.dump(failed, file)
 
 
-download_all_tickers(END_DATE)
+def get_lookback_date(date):
+    look_back = 0
+    for model_index in smarketsim.MODELS:
+        back_req = (
+            smarketsim.MODELS[model_index][smarketsim.STEP]
+            + smarketsim.MODELS[model_index][smarketsim.LOOKBACK]
+        )
+        if back_req > look_back:
+            look_back = back_req
+    look_back = 365 / 252 * look_back + 3
+    return date - datetime.timedelta(look_back)
+
+
+def get_stocks_meta():
+    return yfscraper.v2.get_metadata(BASE)
+
+
+def get_avail_tickers(date):
+    stocks = get_stocks_meta()
+    first_date = get_lookback_date(date)
+    tickers = []
+    for ticker in stocks:
+        if stocks[ticker]["start_date"] < first_date:
+            tickers.append(ticker)
+    return tickers
+
+
+def random_port(date, port_size_max):
+    tickers = get_avail_tickers(date)
+    if len(tickers) > 0:
+        random.shuffle(tickers)
+        port = {}
+        for i in range(0, random.randrange(1, min(port_size_max, len(tickers)))):
+            port[tickers[i]] = random.random()
+        return port
+    else:
+        return None
+
+
+def get_changes(tickers, date, days_out):
+    days_for = 365 / 252 * days_out + 3
+    max_date = date + datetime.timedelta(days_for)
+    changes = smarketsim.get_changes(BASE, tickers, 1, max_date)
+    changes = changes[changes.index <= max_date]
+    changes = changes[changes.index > date]
+    return changes
+
+
+def port_perf_real(port, date, days_out):
+    changes = get_changes(list(port.keys()), date, days_out)
+    changes["_INDEX"] = 1
+    changes["_PORT"] = 0
+    for ticker in changes.columns:
+        if ticker != "_PORT" and ticker != "_INDEX":
+            changes["_PORT"] += changes[ticker] * port[ticker]
+    changes = changes[["_PORT", "_INDEX"]]
+    last_index = None
+    for date_index in changes.index.values:
+        if last_index:
+            changes.loc[date_index] += changes.loc[last_index]
+        last_index = date_index
+    changes = changes.set_index("_INDEX")
+    return changes
+
+
+DATE = datetime.datetime(2020, 1, 1)
+
+port = random_port(DATE, 30)
+changes = port_perf_real(port, DATE, 100)
+
+a = 0
