@@ -2,9 +2,10 @@
 /main.py
 /base
 /smarketsim/__pycache__
+/smarketsim/v1/__pycache__
 /sim_files
 /validation/base
-/validation/failed.json
-/validation/sim_files
+/validation/v1/failed.json
+/validation/v1/sim_files
 /build
 /smarketsim.egg-info

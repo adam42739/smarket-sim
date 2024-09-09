@@ -6,11 +6,11 @@ import random
 import numpy
 
 
-TICKERS = "validation/tickers.json"
-FAILED = "validation/failed.json"
+TICKERS = "validation/v1/tickers.json"
+FAILED = "validation/v1/failed.json"
 BASE = "validation/base/"
-SIM_FILES = "validation/sim_files/"
-SIM_PERCS = "validation/sim_percs.json"
+SIM_FILES = "validation/v1/sim_files/"
+SIM_PERCS = "validation/v1/sim_percs.json"
 
 START_DATE = datetime.datetime(1990, 1, 1)
 END_DATE = datetime.datetime(2024, 9, 1)
