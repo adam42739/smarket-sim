@@ -18,13 +18,16 @@ class Dataset:
     def split(self, date):
         self.split_date = date
 
-    def rng_sample_pop(self, N, stock_packet):
+    def rng_sample_pop(self, N, stock_packet, prior=True):
         size = 0
         while size < N:
             index = random.randrange(0, len(self.tickers))
             ticker = self.tickers[index]
             df = mfeature.from_parquet(self.parq, ticker)
-            df = df[df.index < self.split_date]
+            if prior:
+                df = df[df.index < self.split_date]
+            else:
+                df = df[df.index > self.split_date]
             df = df.reindex()
             for i in range(0, stock_packet):
                 index = random.randrange(0, len(df))
