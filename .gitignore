@@ -1,8 +1,10 @@
 /env
-/main.py
+/main_v1.py
+/main_v2.py
 /base
 /smarketsim/__pycache__
 /smarketsim/v1/__pycache__
+/smarketsim/v2/__pycache__
 /sim_files
 /validation/base
 /validation/v1/failed.json

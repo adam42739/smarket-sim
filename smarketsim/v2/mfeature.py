@@ -1,6 +1,9 @@
 import yfscraper
 import numpy
 import pandas
+import tqdm
+import json
+import os
 
 
 def _compute_LC(df, desc):
@@ -64,3 +67,28 @@ def from_parquet(folder, ticker):
     path = folder + ticker + ".parquet"
     df = pandas.read_parquet(path)
     return df
+
+
+def get_metadata(parq_folder):
+    data = []
+    path = parq_folder + "_metadata.json"
+    if os.path.exists(path):
+        with open(path, "r") as file:
+            data = json.load(file)
+    return data
+
+
+def write_metadata(data, parq_folder):
+    with open(parq_folder + "_metadata.json", "w") as file:
+        json.dump(data, file)
+
+
+def compute_base(base, desc, highs, parq_folder):
+    price_data = yfscraper.v2.get_metadata(base)
+    parq_data = get_metadata(parq_folder)
+    for ticker in tqdm.tqdm(price_data):
+        if ticker not in parq_data:
+            df = get(base, ticker, desc, highs)
+            to_parquet(df, parq_folder, ticker)
+            parq_data.append(ticker)
+            write_metadata(parq_data, parq_folder)
