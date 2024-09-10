@@ -38,6 +38,9 @@ def _compute_percs(df, highs):
     return df
 
 
+FEATURE_KEYWORD = ["VOL", "PERC"]
+
+
 def get(base, ticker, desc, highs):
     df = yfscraper.v2.get_data(ticker, base)
     df = _compute_LC(df, desc)
