@@ -7,10 +7,6 @@ class Dataset:
     def __init__(self):
         return
 
-    def load_from_base(self, base, desc, highs, parq):
-        mfeature.compute_base(base, desc, highs, parq)
-        self.load_from_parq(parq)
-
     def load_from_parq(self, parq):
         self.parq = parq
         self.tickers = mfeature.get_metadata(parq)
@@ -23,7 +19,8 @@ class Dataset:
         while size < N:
             index = random.randrange(0, len(self.tickers))
             ticker = self.tickers[index]
-            df = mfeature.from_parquet(self.parq, ticker)
+            df = mfeature.MFeat()
+            df.from_parquet(self.parq, ticker)
             if prior:
                 df = df[df.index < self.split_date]
             else:
