@@ -13,7 +13,8 @@ setup(
         "yfscraper",
         "numpy>=2.1.1",
         "scipy>=1.14.1",
-        "fastparquet>=2024.5.0"
+        "fastparquet>=2024.5.0",
+        "scikit-learn>=1.5.1"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
