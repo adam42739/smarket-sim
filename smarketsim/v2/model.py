@@ -3,6 +3,7 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
 from smarketsim.v2 import metalog
 import numpy
+import pickle
 
 
 DSET_N = 1000
@@ -15,7 +16,7 @@ KNN_NEIGHBOORS = 50
 MLOG_PREC_COUNT = 10
 
 
-class Model:
+class MetaModel:
     def __init__(self):
         return
 
@@ -62,6 +63,12 @@ class Model:
                 self.mlogs[i][j] = metalog.Metalog(mlog_dim)
                 self.mlogs[i][j].fit(array)
 
+    def clean_fitting_data(self):
+        del self.X
+        del self.dset
+        del self.knn
+        del self.pca_Xtran
+
     def fit_parq(self, parq, X_cols, y_col, train_before, mlog_dim):
         self._config_dset(parq, train_before)
         self._perform_PCA(X_cols)
@@ -81,3 +88,20 @@ class Model:
         j = self._get_perc_index(s_tran[1], 1)
         mlog = self.mlogs[i][j]
         return mlog
+
+
+def write_metamodel(mod, path):
+    with open(path, "wb") as file:
+        pickle.dump(mod, file)
+
+
+def read_metamodel(path):
+    mod = None
+    with open(path, "rb") as file:
+        mod = pickle.load(file)
+    return mod
+
+
+class CorrModel:
+    def __init__(self):
+        return
