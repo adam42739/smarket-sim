@@ -19,16 +19,16 @@ class Dataset:
         while size < N:
             index = random.randrange(0, len(self.tickers))
             ticker = self.tickers[index]
-            df = mfeature.MFeat()
-            df.from_parquet(self.parq, ticker)
+            mfeat = mfeature.MFeat()
+            mfeat.from_parq(self.parq, ticker)
             if prior:
-                df = df[df.index < self.split_date]
+                mfeat.df = mfeat.df[mfeat.df.index < self.split_date]
             else:
-                df = df[df.index > self.split_date]
-            df = df.reindex()
+                mfeat.df = mfeat.df[mfeat.df.index > self.split_date]
+            mfeat.df = mfeat.df.reindex()
             for i in range(0, stock_packet):
-                index = random.randrange(0, len(df))
+                index = random.randrange(0, len(mfeat.df))
                 if size == 0:
-                    self.df = pandas.DataFrame(columns=df.columns)
-                self.df.loc[size] = df.iloc[index]
+                    self.df = pandas.DataFrame(columns=mfeat.df.columns)
+                self.df.loc[size] = mfeat.df.iloc[index]
                 size += 1
