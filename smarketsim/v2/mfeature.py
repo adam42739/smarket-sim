@@ -20,8 +20,13 @@ class MFeat:
 
     def from_price(self, base, ticker):
         self.df = yfscraper.v2.get_data(ticker, base)
-        df = df.set_index("Date")
-        return df
+
+    def add_LCF(self, steps):
+        for step in steps:
+            self.df["Close_step"] = self.df["Close"].shift(periods=step)
+            self.df["LC" + str(step)] = numpy.log(
+                self.df["Close"] / self.df["Close_step"]
+            )
 
     def add_LC(self, steps):
         for step in steps:
@@ -57,6 +62,10 @@ class MFeat:
                     P = self.df.at[i, "Close"]
                     self.df.at[i, "PERC" + str(size)] = (P - low) / (high - low)
 
+    def final_clean(self):
+        self.df = self.df.drop_duplicates()
+        self.df = self.df.set_index("Date")
+
 
 def get_metadata(parq_folder):
     data = []
@@ -70,3 +79,20 @@ def get_metadata(parq_folder):
 def write_metadata(data, parq_folder):
     with open(parq_folder + "_metadata.json", "w") as file:
         json.dump(data, file)
+
+
+def mfeat_from_base(base, lc_steps, lcf_steps, vol_sizes, percs, parqs):
+    tickers = yfscraper.v2.get_metadata(base)
+    data = get_metadata(parqs)
+    for ticker in tqdm.tqdm(tickers):
+        if ticker not in data:
+            feat = MFeat()
+            feat.from_price(base, ticker)
+            feat.add_LC(lc_steps)
+            feat.add_LCF(lcf_steps)
+            feat.add_vol(vol_sizes)
+            feat.add_percs(percs)
+            feat.final_clean()
+            feat.to_parq(parqs, ticker)
+            data.append(ticker)
+            write_metadata(data, parqs)
