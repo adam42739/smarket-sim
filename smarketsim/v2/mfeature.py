@@ -24,7 +24,7 @@ class MFeat:
     def add_LCF(self, steps):
         for step in steps:
             self.df["Close_step"] = self.df["Close"].shift(periods=step)
-            self.df["LC" + str(step)] = numpy.log(
+            self.df["LCF" + str(step)] = numpy.log(
                 self.df["Close"] / self.df["Close_step"]
             )
 
@@ -63,7 +63,7 @@ class MFeat:
                     self.df.at[i, "PERC" + str(size)] = (P - low) / (high - low)
 
     def final_clean(self):
-        self.df = self.df.drop_duplicates()
+        self.df = self.df.dropna()
         self.df = self.df.set_index("Date")
 
 
