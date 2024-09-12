@@ -6,6 +6,7 @@ import numpy
 import pickle
 from numpy.random import multivariate_normal
 from scipy.stats import norm
+import json
 
 
 DSET_N = 1000
@@ -94,21 +95,38 @@ class MetaModel:
         return mlog
 
 
-def write_metamodel(mod, path):
-    with open(path, "wb") as file:
-        pickle.dump(mod, file)
-
-
-def read_metamodel(path):
-    mod = None
-    with open(path, "rb") as file:
-        mod = pickle.load(file)
-    return mod
-
-
 class Model:
     def __init__(self):
         return
+
+    def write_model(self, folder, name):
+        metadata = {}
+        for y_col in self.models:
+            self.models[y_col]["metamodel"].clean_fitting_data()
+            with open(folder + name + "-" + y_col + "-metamodel.bin", "wb") as file:
+                pickle.dump(self.models[y_col]["metamodel"], file)
+            with open(folder + name + "-" + y_col + "-calgn.bin", "wb") as file:
+                pickle.dump(self.models[y_col]["calgn"], file)
+            metadata[y_col] = self.models[y_col]["corr_size"]
+        with open(folder + name + "-metadata.json", "w") as file:
+            json.dump(metadata, file)
+        with open(folder + name + "-indexes.json", "w") as file:
+            json.dump(self.indexes, file)
+
+    def read_model(self, folder, name):
+        with open(folder + name + "-indexes.json", "r") as file:
+            self.indexes = json.load(file)
+        metadata = {}
+        with open(folder + name + "-metadata.json", "r") as file:
+            metadata = json.load(file)
+        self.models = {}
+        for y_col in metadata:
+            self.models[y_col] = {}
+            with open(folder + name + "-" + y_col + "-metamodel.bin", "rb") as file:
+                self.models[y_col]["metamodel"] = pickle.load(file)
+            with open(folder + name + "-" + y_col + "-calgn.bin", "rb") as file:
+                self.models[y_col]["calgn"] = pickle.load(file)
+            self.models[y_col]["corr_size"] = metadata[y_col]
 
     def fit_parq(
         self,
@@ -124,12 +142,18 @@ class Model:
             metamodel.fit_parq(parq, desc[y_col]["X_cols"], y_col, date)
             calgn = datasets.ChangeAlign()
             calgn.create(parq, tickers, date, desc[y_col]["LC"])
-            self.models[y_col] = {"metamodel": metamodel, "calgn": calgn}
+            self.models[y_col] = {
+                "metamodel": metamodel,
+                "calgn": calgn,
+                "corr_size": desc[y_col]["corr_size"],
+            }
 
-    def predict(self, corr_size, data_series):
+    def predict(self, data_series):
         res = {}
         for y_col in self.models:
-            corr = self.models[y_col]["calgn"].compute_corr(corr_size)
+            corr = self.models[y_col]["calgn"].compute_corr(
+                self.models[y_col]["corr_size"]
+            )
             mlogs = {}
             for ticker in data_series:
                 series = data_series[ticker]
@@ -138,8 +162,8 @@ class Model:
             res[y_col] = {"corr": corr, "mlogs": mlogs}
         return res
 
-    def sample(self, corr_size, data_series):
-        res = self.predict(corr_size, data_series)
+    def sample(self, data_series):
+        res = self.predict(data_series)
         samp = {}
         for y_col in res:
             norm_Z = multivariate_normal(
