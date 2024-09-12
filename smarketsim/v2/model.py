@@ -83,9 +83,9 @@ class MetaModel:
         index = 0
         while index < MLOG_PREC_COUNT:
             if val < self.mlog_percs[iter][index]:
-                break
+                return index
             index += 1
-        return index
+        return index - 1
 
     def predict(self, series):
         s_tran = self.pca.transform([series[self.X_cols]])[0]
