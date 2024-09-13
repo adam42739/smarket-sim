@@ -91,8 +91,26 @@ class MFeatSim:
     def add(self, date, res):
         for y_col in res:
             for ticker in res[y_col]:
+                print(self.mfeats[ticker].head())
+                date_bef = max(self.mfeats[ticker].index)
                 self.mfeats[ticker].at[date, y_col] = res[y_col][ticker]
-                self.mfeats[ticker].sort_index(ascending=False)
+                self.mfeats[ticker].at[date, "Open"] = (
+                    numpy.exp(res["LCF1"][ticker])
+                    * self.mfeats[ticker].at[date_bef, "Open"]
+                )
+                self.mfeats[ticker].at[date, "High"] = (
+                    numpy.exp(res["LCF1"][ticker])
+                    * self.mfeats[ticker].at[date_bef, "High"]
+                )
+                self.mfeats[ticker].at[date, "Low"] = (
+                    numpy.exp(res["LCF1"][ticker])
+                    * self.mfeats[ticker].at[date_bef, "Low"]
+                )
+                self.mfeats[ticker].at[date, "Close"] = (
+                    numpy.exp(res["LCF1"][ticker])
+                    * self.mfeats[ticker].at[date_bef, "Close"]
+                )
+                self.mfeats[ticker] = self.mfeats[ticker].sort_index(ascending=False)
                 self.mfeats[ticker] = _compute_vol(self.mfeats[ticker], self.vols)
                 self.mfeats[ticker] = _compute_perc(self.mfeats[ticker], self.percs)
 
@@ -136,8 +154,8 @@ class Simulation:
         self.model.read_model(folder, name)
 
     def _advance(self, res):
-        self.mfs.add(self.date, res)
         self.date = _advance_date(self.date)
+        self.mfs.add(self.date, res)
         # TODO
         a = 0
 
