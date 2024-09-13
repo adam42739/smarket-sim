@@ -4,6 +4,7 @@ import json
 import datetime
 import numpy
 import pickle
+import pandas
 
 
 def _max_head(desc):
@@ -117,7 +118,9 @@ class MFeatSim:
         for y_col in res:
             for ticker in res[y_col]:
                 date_bef = max(self.mfeats[ticker].index)
-                self.mfeats[ticker].at[date, y_col.replace("F", "")] = res[y_col][ticker]
+                self.mfeats[ticker].at[date, y_col.replace("F", "")] = res[y_col][
+                    ticker
+                ]
                 self.mfeats[ticker].at[date, "Open"] = (
                     numpy.exp(res["LCF1"][ticker])
                     * self.mfeats[ticker].at[date_bef, "Open"]
@@ -189,3 +192,22 @@ class Simulation:
             data_series[ticker] = mfdf.loc[self.date]
         res = self.model.sample(data_series)
         self._advance(res)
+
+    def last_ntcloses(self, N):
+        df = pandas.DataFrame()
+        for ticker in self.mfs.mfeats:
+            if df.empty:
+                df = (
+                    self.mfs.mfeats[ticker][["Close"]]
+                    .head(N)
+                    .rename({"Close": ticker}, axis="columns")
+                )
+            else:
+                df = df.merge(
+                    self.mfs.mfeats[ticker][["Close"]]
+                    .head(N)
+                    .rename({"Close": ticker}, axis="columns"),
+                    left_index=True,
+                    right_index=True,
+                )
+        return df
