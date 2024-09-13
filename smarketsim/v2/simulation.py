@@ -50,6 +50,17 @@ def _compute_vol_desc(desc):
     return vols
 
 
+def _compute_perc_desc(desc):
+    percs = []
+    for y_col in desc:
+        for col in desc[y_col]["X_cols"]:
+            if "PERC" in col:
+                size = int(col[4:])
+                if size not in percs:
+                    percs.append(size)
+    return percs
+
+
 def _compute_vol(df, vols):
     for step in vols:
         for size in vols[step]:
@@ -61,6 +72,15 @@ def _compute_vol(df, vols):
 
 
 def _compute_perc(df, percs):
+    for size in percs:
+        datei = max(df.index)
+        low = numpy.min(df.head(size)["Low"])
+        high = numpy.max(df.head(size)["High"])
+        if high == low:
+            df.at[datei, "PERC" + str(size)] = 0.5
+        else:
+            P = df.at[datei, "Close"]
+            df.at[datei, "PERC" + str(size)] = (P - low) / (high - low)
     return df
 
 
@@ -74,10 +94,11 @@ class MFeatSim:
                 self.mfeats[ticker].at[date, y_col] = res[y_col][ticker]
                 self.mfeats[ticker].sort_index(ascending=False)
                 self.mfeats[ticker] = _compute_vol(self.mfeats[ticker], self.vols)
-                self.mfeats[ticker] = _compute_perc(self.mfeats[ticker])
+                self.mfeats[ticker] = _compute_perc(self.mfeats[ticker], self.percs)
 
     def create(self, parq, tickers, date, desc):
         self.vols = _compute_vol_desc(desc)
+        self.percs = _compute_perc_desc(desc)
         self.mfeats = {}
         for ticker in tickers:
             mfeat = mfeature.MFeat()
