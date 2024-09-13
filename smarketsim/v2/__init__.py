@@ -1,2 +1,2 @@
 from smarketsim.v2.simulation import Simulation
-from smarketsim.v2.mfeature import mfeat_from_base
+from smarketsim.v2.sim_desc import build_parq

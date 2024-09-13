@@ -5,6 +5,7 @@ import datetime
 import numpy
 import pickle
 import pandas
+from smarketsim.v2 import sim_desc
 
 
 def _max_head(desc):
@@ -157,7 +158,7 @@ class Simulation:
     def __init__(self):
         return
 
-    def build(self, parq, tickers, desc, date):
+    def build(self, parq, tickers, date, desc=sim_desc.DESC):
         self.parq = parq
         self.date = date
         self.model = model.Model()
