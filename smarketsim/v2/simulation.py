@@ -33,7 +33,7 @@ def _advance_date(date):
         new_date += datetime.timedelta(3)
     else:
         new_date += datetime.timedelta(1)
-    return new_date
+    return datetime.datetime.strftime(new_date, "%Y-%m-%d")
 
 
 def _compute_vol_desc(desc):
@@ -164,9 +164,7 @@ class Simulation:
 
     def write_sim(self, folder, name):
         with open(folder + name + "-simdata.json", "w") as file:
-            json.dump(
-                [self.parq, datetime.datetime.strftime(self.date, "%Y%m%d")], file
-            )
+            json.dump([self.parq, self.date], file)
         self.mfs.write(folder + name + "-", "mfs")
         self.model.write_model(folder + name + "-", "mod")
 
@@ -174,7 +172,7 @@ class Simulation:
         with open(folder + name + "-simdata.json", "r") as file:
             lst = json.load(file)
             self.parq = lst[0]
-            self.date = datetime.datetime.strptime(lst[1], "%Y%m%d")
+            self.date = lst[1]
         self.model = model.Model()
         self.model.read_model(folder + name + "-", "mod")
         self.mfs = MFeatSim()
@@ -183,8 +181,6 @@ class Simulation:
     def _advance(self, res):
         self.date = _advance_date(self.date)
         self.mfs.add(self.date, res)
-        # TODO
-        a = 0
 
     def sim(self):
         data_series = {}
