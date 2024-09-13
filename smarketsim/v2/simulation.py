@@ -117,7 +117,7 @@ class MFeatSim:
         for y_col in res:
             for ticker in res[y_col]:
                 date_bef = max(self.mfeats[ticker].index)
-                self.mfeats[ticker].at[date, y_col] = res[y_col][ticker]
+                self.mfeats[ticker].at[date, y_col.replace("F", "")] = res[y_col][ticker]
                 self.mfeats[ticker].at[date, "Open"] = (
                     numpy.exp(res["LCF1"][ticker])
                     * self.mfeats[ticker].at[date_bef, "Open"]
