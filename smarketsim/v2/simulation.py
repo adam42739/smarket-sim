@@ -185,13 +185,17 @@ class Simulation:
         self.date = _advance_date(self.date)
         self.mfs.add(self.date, res)
 
-    def sim(self):
+    def _sim_single(self):
         data_series = {}
         for ticker in self.model.indexes:
             mfdf = self.mfs.mfeats[ticker]
             data_series[ticker] = mfdf.loc[self.date]
         res = self.model.sample(data_series)
         self._advance(res)
+
+    def sim(self, days=1):
+        for i in range(0, days):
+            self._sim_single()
 
     def last_ntcloses(self, N):
         df = pandas.DataFrame()
