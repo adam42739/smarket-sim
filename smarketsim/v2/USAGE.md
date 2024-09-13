@@ -25,7 +25,7 @@ PARQ = "parq/"
 smarketsim.build_parq(BASE, PARQ)
 ```
 
-1. "parq data" refers to features computed from raw stock price data stored in [parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format for each of use later on.
+1. "parq data" refers to features computed from raw stock price data stored in [parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format for ease of use later on.
 
 Create the simulation object.
 
@@ -44,7 +44,7 @@ sim.build(PARQ, ["AAPL", "MSFT", "AMZN"], DATE)
 Run the simulation some amount of days
 
 ```python
-DAYS = 25
+DAYS = 6
 
 sim.sim(DAYS)
 ```
