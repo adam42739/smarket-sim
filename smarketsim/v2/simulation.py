@@ -158,7 +158,8 @@ class Simulation:
     def __init__(self):
         return
 
-    def build(self, parq, tickers, date, desc=sim_desc.DESC):
+    def build(self, parq, tickers, date):
+        desc = sim_desc.DESC
         self.parq = parq
         self.date = date
         self.model = model.Model()
