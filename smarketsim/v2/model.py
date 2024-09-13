@@ -7,6 +7,7 @@ import pickle
 from numpy.random import multivariate_normal
 from scipy.stats import norm
 import json
+from sklearn.preprocessing import normalize
 
 
 DSET_N = 1000
@@ -29,7 +30,9 @@ class MetaModel:
         self.X_cols = X_cols
         self.X = self.dset.df[X_cols]
         self.pca = PCA(n_components=PCA_KEEP)
-        self.pca_Xtran = self.pca.fit_transform(self.X.values)
+        norm_res = normalize(self.X.values, axis=0, return_norm=True)
+        self.norm = norm_res[1]
+        self.pca_Xtran = self.pca.fit_transform(norm_res[0])
 
     def _config_dset(self, parq, train_before):
         self.dset = datasets.Dataset()
@@ -88,7 +91,7 @@ class MetaModel:
         return index - 1
 
     def predict(self, series):
-        s_tran = self.pca.transform([series[self.X_cols]])[0]
+        s_tran = self.pca.transform([series[self.X_cols] / self.norm])[0]
         i = self._get_perc_index(s_tran[0], 0)
         j = self._get_perc_index(s_tran[1], 1)
         mlog = self.mlogs[i][j]
