@@ -2,6 +2,7 @@ from smarketsim.v2 import model
 from smarketsim.v2 import mfeature
 import json
 import datetime
+import numpy
 
 
 def _max_head(desc):
@@ -34,6 +35,35 @@ def _advance_date(date):
     return new_date
 
 
+def _compute_vol_desc(desc):
+    vols = {}
+    for y_col in desc:
+        for col in desc[y_col]["X_cols"]:
+            if "VOL" in col:
+                vind = col.find("V")
+                lc = int(col[2:vind])
+                size = int(col[vind + 3 :])
+                if lc not in vols:
+                    vols[lc] = []
+                if size not in vols[lc]:
+                    vols[lc].append(size)
+    return vols
+
+
+def _compute_vol(df, vols):
+    for step in vols:
+        for size in vols[step]:
+            datei = max(df.index)
+            df.at[datei, "LC" + str(step) + "VOL" + str(size)] = numpy.std(
+                df.head(size)["LC" + str(step)]
+            )
+    return df
+
+
+def _compute_perc(df, percs):
+    return df
+
+
 class MFeatSim:
     def __init__(self):
         return
@@ -43,9 +73,11 @@ class MFeatSim:
             for ticker in res[y_col]:
                 self.mfeats[ticker].at[date, y_col] = res[y_col][ticker]
                 self.mfeats[ticker].sort_index(ascending=False)
-                # TODO compute mfeats
+                self.mfeats[ticker] = _compute_vol(self.mfeats[ticker], self.vols)
+                self.mfeats[ticker] = _compute_perc(self.mfeats[ticker])
 
     def create(self, parq, tickers, date, desc):
+        self.vols = _compute_vol_desc(desc)
         self.mfeats = {}
         for ticker in tickers:
             mfeat = mfeature.MFeat()
