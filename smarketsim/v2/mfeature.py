@@ -6,6 +6,18 @@ import json
 import os
 
 
+def perc_compute_head(num):
+    return num
+
+
+def vol_compute_head(lc, size):
+    return size + lc
+
+
+def corr_compute_head(lc, size):
+    return size + lc
+
+
 class MFeat:
     def __init__(self):
         return
