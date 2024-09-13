@@ -3,6 +3,7 @@ from smarketsim.v2 import mfeature
 import json
 import datetime
 import numpy
+import pickle
 
 
 def _max_head(desc):
@@ -88,10 +89,33 @@ class MFeatSim:
     def __init__(self):
         return
 
+    def write(self, folder, name):
+        with open(folder + name + "-metadata.json", "w") as file:
+            json.dump(
+                {
+                    "vol": self.vols,
+                    "perc": self.percs,
+                    "tickers": list(self.mfeats.keys()),
+                },
+                file,
+            )
+        for ticker in self.mfeats:
+            with open(folder + name + "-" + ticker + ".pickle", "wb") as file:
+                pickle.dump(self.mfeats[ticker], file)
+
+    def read(self, folder, name):
+        with open(folder + name + "-metadata.json", "r") as file:
+            mdata = json.load(file)
+            self.vols = dict(mdata["vol"])
+            self.percs = list(mdata["perc"])
+            self.mfeats = {ticker: None for ticker in list(mdata["tickers"])}
+        for ticker in self.mfeats:
+            with open(folder + name + "-" + ticker + ".pickle", "rb") as file:
+                self.mfeats[ticker] = pickle.load(file)
+
     def add(self, date, res):
         for y_col in res:
             for ticker in res[y_col]:
-                print(self.mfeats[ticker].head())
                 date_bef = max(self.mfeats[ticker].index)
                 self.mfeats[ticker].at[date, y_col] = res[y_col][ticker]
                 self.mfeats[ticker].at[date, "Open"] = (
@@ -139,19 +163,22 @@ class Simulation:
         self.mfs.create(parq, tickers, date, desc)
 
     def write_sim(self, folder, name):
-        # TODO mfs
         with open(folder + name + "-simdata.json", "w") as file:
-            json.dump([self.parq, self.date], file)
-        self.model.write_model(folder, name)
+            json.dump(
+                [self.parq, datetime.datetime.strftime(self.date, "%Y%m%d")], file
+            )
+        self.mfs.write(folder + name + "-", "mfs")
+        self.model.write_model(folder + name + "-", "mod")
 
     def read_sim(self, folder, name):
-        # TODO mfs
         with open(folder + name + "-simdata.json", "r") as file:
             lst = json.load(file)
             self.parq = lst[0]
-            self.date = lst[1]
+            self.date = datetime.datetime.strptime(lst[1], "%Y%m%d")
         self.model = model.Model()
-        self.model.read_model(folder, name)
+        self.model.read_model(folder + name + "-", "mod")
+        self.mfs = MFeatSim()
+        self.mfs.read(folder + name + "-", "mfs")
 
     def _advance(self, res):
         self.date = _advance_date(self.date)
