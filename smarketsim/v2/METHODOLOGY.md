@@ -2,7 +2,7 @@
 
 ## Metalog Model
 
-Let $X$ be a matrix of predictors and $y$ a vector of outcomes. Each row in $X$ represents one point in time for a particular stock and each column a predictor for the corresponding outcome in $y$. Each value in $y$ represents the stocks performance following the time in $X$.
+Let $X$ be a matrix of predictors and $y$ a vector of outcomes. Each row in $X$ represents one point in time for a particular stock and each column a predictor for the corresponding outcome in $y$. Each value in $y$ represents the stock's performance following the time in $X$.
 
 Example $X$ and $y$:
 
@@ -23,7 +23,7 @@ Consider the mapping below where the x and y axis represent the two columns of $
 
 ![X to M mapping](mapping.png "Mapping")
 
-The above represents a mapping for an $X$ that has only two columns. However, $X$ may have more than two columns in which case the number of discrete points in the mapping exponentially grows. To control this, we perform PCA on $X$ to reduce its dimensionality to two.
+The above represents a mapping for an $X$ that has only two columns. However, $X$ may have more than two columns in which case the number of discrete points within the mapping grows exponentially. To control this, we perform PCA on $X$ to reduce its dimensionality to two.
 
 $$
 M_{(x_1,\ x_2)} = M_{(Xv_1,\ Xv_2)}
@@ -47,7 +47,7 @@ $$
 Z=NormCDF(Y)
 $$
 
-For any stock $i$ associated with $X_i$, a random sample is $M_{(x_{i,1},\ x_{i,2})}(Z_i)$.
+For any stock $i$ associated with a row of $X$, $X_i$, a random sample is $M_{(x_{i,1},\ x_{i,2})}(Z_i)$.
 
 
 
