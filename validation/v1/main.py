@@ -6,8 +6,8 @@ import random
 import numpy
 
 
-TICKERS = "validation/v1/tickers.json"
-FAILED = "validation/v1/failed.json"
+TICKERS = "validation/tickers.json"
+FAILED = "validation/failed.json"
 BASE = "validation/base/"
 SIM_FILES = "validation/v1/sim_files/"
 SIM_PERCS = "validation/v1/sim_percs.json"
