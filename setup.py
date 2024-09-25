@@ -8,13 +8,12 @@ setup(
     author="Adam Lynch",
     author_email="aclynch@umich.edu",
     license="MIT License",
-    packages=["smarketsim"],
+    packages=["smarketsim", "smarketsim.v1", "smarketsim.v2"],
     install_requires=[
-        "yfscraper",
         "numpy>=2.1.1",
         "scipy>=1.14.1",
         "fastparquet>=2024.5.0",
-        "scikit-learn>=1.5.1"
+        "scikit-learn>=1.5.1",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
