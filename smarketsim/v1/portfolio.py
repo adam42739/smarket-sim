@@ -1,4 +1,4 @@
-from smarketsim.v1 import simulation
+from . import simulation
 import math
 import json
 import datetime

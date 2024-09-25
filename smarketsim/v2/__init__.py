@@ -1,2 +1,2 @@
-from smarketsim.v2.simulation import Simulation
-from smarketsim.v2.sim_desc import build_parq
+from .simulation import Simulation
+from .sim_desc import build_parq

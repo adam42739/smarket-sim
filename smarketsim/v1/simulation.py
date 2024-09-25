@@ -1,5 +1,5 @@
-from smarketsim.v1 import model
-from smarketsim.v1 import stocks
+from . import model
+from . import stocks
 import pandas
 import datetime
 

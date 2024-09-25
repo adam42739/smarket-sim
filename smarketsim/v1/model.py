@@ -1,4 +1,4 @@
-from smarketsim.v1 import metalog
+from . import metalog
 import numpy
 import scipy.stats
 

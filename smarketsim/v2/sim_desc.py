@@ -1,4 +1,4 @@
-from smarketsim.v2 import mfeature
+from . import mfeature
 
 LC_STEPS = [1]
 LCF_STEPS = [1]

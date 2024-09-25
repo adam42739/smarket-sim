@@ -1,11 +1,11 @@
-import yfscraper
+import yfscraper.v2 as yfscraper
 import math
 import pandas
 import datetime
 
 
 def _ticker_to_get(base, tickers, date):
-    metadata = yfscraper.v2.get_metadata(base)
+    metadata = yfscraper.get_metadata(base)
     to_get = []
     for ticker in tickers:
         if ticker not in metadata:
@@ -18,13 +18,13 @@ def _ticker_to_get(base, tickers, date):
 def _update_prices(base, tickers, date):
     to_get = _ticker_to_get(base, tickers, date)
     if len(to_get) > 0:
-        yfscraper.v2.download_data(to_get, base, datetime.datetime.today())
+        yfscraper.download_data(to_get, base, datetime.datetime.today())
 
 
 def _get_price(base, ticker):
-    metadata = yfscraper.v2.get_metadata(base)
+    metadata = yfscraper.get_metadata(base)
     if ticker in metadata:
-        price = yfscraper.v2.get_data(ticker, base)
+        price = yfscraper.get_data(ticker, base)
         price = price[["Date", "Close"]]
         return price
     else:
@@ -48,7 +48,7 @@ def _get_change(base, ticker, step, df_dict):
 
 
 def get_changes(base, tickers, step, date):
-    tickers = yfscraper.v2.yahoo_format(tickers)
+    tickers = yfscraper.yahoo_format(tickers)
     _update_prices(base, tickers, date)
     df_dict = {}
     for ticker in tickers:

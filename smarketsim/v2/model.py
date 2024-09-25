@@ -1,7 +1,7 @@
-from smarketsim.v2 import datasets
+from . import datasets
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
-from smarketsim.v2 import metalog
+from . import metalog
 import numpy
 import pickle
 from numpy.random import multivariate_normal

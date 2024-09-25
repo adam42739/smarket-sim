@@ -1,11 +1,11 @@
-from smarketsim.v2 import model
-from smarketsim.v2 import mfeature
+from . import model
+from . import mfeature
 import json
 import datetime
 import numpy
 import pickle
 import pandas
-from smarketsim.v2 import sim_desc
+from . import sim_desc
 
 
 def _max_head(desc):

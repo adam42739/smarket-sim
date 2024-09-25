@@ -1,4 +1,4 @@
-import yfscraper
+import yfscraper.v2 as yfscraper
 import numpy
 import pandas
 import tqdm
@@ -31,7 +31,7 @@ class MFeat:
         self.df.to_parquet(path)
 
     def from_price(self, base, ticker):
-        self.df = yfscraper.v2.get_data(ticker, base)
+        self.df = yfscraper.get_data(ticker, base)
 
     def add_LCF(self, steps):
         for step in steps:
@@ -94,7 +94,7 @@ def write_metadata(data, parq_folder):
 
 
 def mfeat_from_base(base, lc_steps, lcf_steps, vol_sizes, percs, parqs):
-    tickers = yfscraper.v2.get_metadata(base)
+    tickers = yfscraper.get_metadata(base)
     data = get_metadata(parqs)
     for ticker in tqdm.tqdm(tickers):
         if ticker not in data:

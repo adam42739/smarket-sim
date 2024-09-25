@@ -1,4 +1,4 @@
-from smarketsim.v2 import mfeature
+from . import mfeature
 import pandas
 import random
 import numpy
