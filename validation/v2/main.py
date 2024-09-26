@@ -2,6 +2,7 @@ import smarketsim.v2 as smarketsim
 import datetime
 import yfscraper.v2 as yfscraper
 import json
+import pandas
 
 
 TICKERS = "validation/tickers.json"
@@ -34,5 +35,24 @@ def build_parq():
     smarketsim.build_parq(BASE, PARQ_FOLDER)
 
 
+MDAY_TIKS = ["AA", "AAON"]
+
+
+def get_mdays():
+    dates = []
+    for ticker in MDAY_TIKS:
+        df = yfscraper.get_data(ticker, BASE)
+        series_dates = pandas.to_datetime(df["Date"]).apply(lambda x: x.date())
+        for date in series_dates:
+            if date not in dates:
+                dates.append(date)
+    return dates
+
+
 # download_all_tickers(END_DATE)
 # build_parq()
+
+# sim = smarketsim.Simulation()
+# sim.build(PARQ_FOLDER, ["a", "aaon", "aal", "aap", "aa"], "2020-01-03")
+# sim.sim(10)
+# print(sim.last_ntcloses(12))
