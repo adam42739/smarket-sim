@@ -1,5 +1,7 @@
 from . import mfeature
 
+AVAIL_BACK_DAYS = 600
+
 LC_STEPS = [1]
 LCF_STEPS = [1]
 VOL_SIZES = {1: [30, 100, 400]}
