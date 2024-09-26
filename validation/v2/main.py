@@ -123,7 +123,7 @@ def random_port() -> dict:
 SIM_DAYS = 50
 
 
-def sim_rng_port(sim_name: str):
+def build_rng_port(sim_name: str):
     port = random_port()
     sim = smarketsim.Simulation()
     sim.build(
@@ -131,7 +131,6 @@ def sim_rng_port(sim_name: str):
         list(port["PORT"].keys()),
         datetime.datetime.strftime(port["DATE"], "%Y-%m-%d"),
     )
-    sim.sim(SIM_DAYS)
     sim.write_sim(SIM_FILES, sim_name)
 
 
