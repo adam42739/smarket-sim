@@ -120,6 +120,20 @@ def random_port() -> dict:
     return {"PORT": port, "DATE": start_date}
 
 
+def write_port(sim_name: str, port: dict):
+    port["DATE"] = datetime.datetime.strftime(port["DATE"], "%Y-%m-%d")
+    with open(SIM_FILES + sim_name + "-port.json", "w") as file:
+        json.dump(port, file)
+
+
+def read_port(sim_name: str) -> dict:
+    port = None
+    with open(SIM_FILES + sim_name + "-port.json", "r") as file:
+        port = json.load(file)
+    port["DATE"] = datetime.datetime.strptime(port["DATE"], "%Y-%m-%d")
+    return port
+
+
 SIM_DAYS = 50
 
 
@@ -132,12 +146,30 @@ def build_rng_port(sim_name: str):
         datetime.datetime.strftime(port["DATE"], "%Y-%m-%d"),
     )
     sim.write_sim(SIM_FILES, sim_name)
+    write_port(sim_name, port)
+
+
+def port_value(sim_name: str, days: int) -> float:
+    sim = smarketsim.Simulation()
+    sim.read_sim(SIM_FILES, sim_name)
+    sim.sim(days)
+    df = sim.last_ntcloses(1)
+    series = df.loc[df.index.values[0]]
+    port = read_port(sim_name)
+    value = 0
+    for ticker in df.columns:
+        value += series[ticker] * port["PORT"][ticker]
+    return value
+
+
+def port_sdists(sim_name: str, days: list[int], N: int):
+    sdists = {}
+    for day in days:
+        sdists[day] = []
+        for i in range(0, N):
+            sdists[day].append(port_value(sim_name, day))
+    return sdists
 
 
 # download_all_tickers(END_DATE)
 # build_parq()
-
-# sim = smarketsim.Simulation()
-# sim.build(PARQ_FOLDER, ["a", "aaon", "aal", "aap", "aa"], "2020-01-03")
-# sim.sim(10)
-# print(sim.last_ntcloses(12))
