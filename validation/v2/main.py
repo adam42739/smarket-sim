@@ -3,6 +3,7 @@ import datetime
 import yfscraper.v2 as yfscraper
 import json
 import pandas
+import random
 
 
 TICKERS = "validation/tickers.json"
@@ -51,13 +52,78 @@ def get_mdays():
 
 def get_start_stops():
     return yfscraper.get_metadata(BASE)
-    
+
+
+def avail_tickers(start_date: datetime.datetime):
+    metadata = yfscraper.get_metadata(BASE)
+    tickers = []
+    for ticker in metadata:
+        if metadata[ticker]["start_date"] < start_date:
+            tickers.append(ticker)
+    return tickers
+
+
+def get_ticker_price(ticker: str, date: datetime.datetime):
+    df = yfscraper.get_data(ticker, BASE)
+    return df[df["Date"] == date]["Close"].values[0]
+
+
+def get_tickers_prices(tickers: list[str], date: datetime.datetime):
+    prices = {}
+    for ticker in tickers:
+        prices[ticker] = get_ticker_price(ticker, date)
+    return prices
+
+
+AVAIL_FORWARD_DAYS = 100
+
+
+def random_start_date():
+    mdays = get_mdays()
+    new_mdays = []
+    min_day = min(mdays) + datetime.timedelta(smarketsim.AVAIL_BACK_DAYS)
+    max_day = max(mdays) - datetime.timedelta(AVAIL_FORWARD_DAYS)
+    for day in mdays:
+        if day > min_day and day < max_day:
+            new_mdays.append(day)
+    random.shuffle(new_mdays)
+    return datetime.datetime(new_mdays[0].year, new_mdays[0].month, new_mdays[0].day)
+
+
+def compute_avail_date(date: datetime.datetime):
+    return date - datetime.timedelta(smarketsim.AVAIL_BACK_DAYS)
+
+
+MIN_PORT_SIZE = 5
+MAX_PORT_SIZE = 30
+
+
+def random_port():
+    start_date = None
+    avail_date = None
+    tickers = []
+    while len(tickers) < MIN_PORT_SIZE:
+        start_date = random_start_date()
+        avail_date = compute_avail_date(start_date)
+        tickers = avail_tickers(avail_date)
+        psize = random.randrange(MIN_PORT_SIZE, MAX_PORT_SIZE)
+        random.shuffle(tickers)
+        tickers = tickers[0:psize]
+    port = {}
+    t_port_v = 0
+    for ticker in tickers:
+        port[ticker] = random.random()
+        t_port_v += port[ticker]
+    prices = get_tickers_prices(tickers, start_date)
+    for ticker in port:
+        port[ticker] = (port[ticker] / t_port_v) / prices[ticker]
+    return port
 
 
 # download_all_tickers(END_DATE)
 # build_parq()
 
-print(get_start_stops())
+# andom_port(datetime.datetime(2021, 1, 1))
 
 # sim = smarketsim.Simulation()
 # sim.build(PARQ_FOLDER, ["a", "aaon", "aal", "aap", "aa"], "2020-01-03")
