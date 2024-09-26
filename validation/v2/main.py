@@ -49,8 +49,15 @@ def get_mdays():
     return dates
 
 
+def get_start_stops():
+    return yfscraper.get_metadata(BASE)
+    
+
+
 # download_all_tickers(END_DATE)
 # build_parq()
+
+print(get_start_stops())
 
 # sim = smarketsim.Simulation()
 # sim.build(PARQ_FOLDER, ["a", "aaon", "aal", "aap", "aa"], "2020-01-03")
