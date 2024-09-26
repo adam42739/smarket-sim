@@ -98,7 +98,7 @@ MIN_PORT_SIZE = 5
 MAX_PORT_SIZE = 30
 
 
-def random_port():
+def random_port() -> dict:
     start_date = None
     avail_date = None
     tickers = []
@@ -117,13 +117,26 @@ def random_port():
     prices = get_tickers_prices(tickers, start_date)
     for ticker in port:
         port[ticker] = (port[ticker] / t_port_v) / prices[ticker]
-    return port
+    return {"PORT": port, "DATE": start_date}
+
+
+SIM_DAYS = 50
+
+
+def sim_rng_port(sim_name: str):
+    port = random_port()
+    sim = smarketsim.Simulation()
+    sim.build(
+        PARQ_FOLDER,
+        list(port["PORT"].keys()),
+        datetime.datetime.strftime(port["DATE"], "%Y-%m-%d"),
+    )
+    sim.sim(SIM_DAYS)
+    sim.write_sim(SIM_FILES, sim_name)
 
 
 # download_all_tickers(END_DATE)
 # build_parq()
-
-# andom_port(datetime.datetime(2021, 1, 1))
 
 # sim = smarketsim.Simulation()
 # sim.build(PARQ_FOLDER, ["a", "aaon", "aal", "aap", "aa"], "2020-01-03")
