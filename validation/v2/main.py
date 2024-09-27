@@ -162,13 +162,52 @@ def port_value(sim_name: str, days: int) -> float:
     return value
 
 
-def port_sdists(sim_name: str, days: list[int], N: int):
+def port_sdists(sim_name: str, days: list[int], N: int) -> dict:
     sdists = {}
     for day in days:
         sdists[day] = []
         for i in range(0, N):
             sdists[day].append(port_value(sim_name, day))
     return sdists
+
+
+def port_prices(sim_name: str, days: int) -> dict:
+    sim = smarketsim.Simulation()
+    sim.read_sim(SIM_FILES, sim_name)
+    sim.sim(days)
+    df = sim.last_ntcloses(1)
+    series = df.loc[df.index.values[0]]
+    prices = {}
+    for ticker in df.columns:
+        prices[ticker] = series[ticker]
+    return prices
+
+
+def port_pdists(sim_name: str, days: list[int], N: int) -> dict:
+    pdists = {}
+    for day in days:
+        pdists[day] = {}
+        for i in range(0, N):
+            prices = port_prices(sim_name, day)
+            if i == 0:
+                for ticker in prices:
+                    pdists[day][ticker] = []
+            else:
+                for ticker in prices:
+                    pdists[day][ticker].append(prices[ticker])
+    return pdists
+
+
+def write_pdists(pdists: dict, sim_name: str, pdists_name: str):
+    with open(SIM_FILES + sim_name + "-pdists-" + pdists_name + ".json", "w") as file:
+        json.dump(pdists, file)
+
+
+def read_pdists(sim_name: str, pdists_name: str) -> dict:
+    pdists = None
+    with open(SIM_FILES + sim_name + "-pdists-" + pdists_name + ".json", "r") as file:
+        pdists = json.load(file)
+    return pdists
 
 
 # download_all_tickers(END_DATE)
