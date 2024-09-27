@@ -4,6 +4,7 @@ import yfscraper.v2 as yfscraper
 import json
 import pandas
 import random
+import numpy
 
 
 TICKERS = "validation/tickers.json"
@@ -210,5 +211,45 @@ def read_pdists(sim_name: str, pdists_name: str) -> dict:
     return pdists
 
 
+def percentile(X: list[float], y: float) -> float:
+    count = 0
+    for x in X:
+        if y > x:
+            count += 1
+    return (count + 0.5) / (len(X) + 1.0)
+
+
+def N_mday_after(start_date: datetime.datetime, N: int) -> datetime.datetime:
+    mdays = get_mdays()
+    N_closest = []
+    for day in mdays:
+        if len(N_closest) < N:
+            N_closest.append(day)
+        elif day < max(N_closest) and day > start_date.date():
+            index = numpy.argmax(N_closest)
+            N_closest.pop(index)
+            N_closest.append(day)
+    date = max(N_closest)
+    return datetime.datetime(date.year, date.month, date.day)
+
+
+def pdist_perc(sim_name: str, pdists_name: str) -> dict:
+    pdists = read_pdists(sim_name, pdists_name)
+    port = read_port(sim_name)
+    start_date = port["DATE"]
+    percs = {}
+    for day in pdists:
+        percs[day] = {}
+    for ticker in pdists[list(pdists.keys())[0]]:
+        df = yfscraper.get_data(ticker, BASE)
+        for day in pdists:
+            date = N_mday_after(start_date, int(day))
+            close = df[pandas.to_datetime(df["Date"]) == date]["Close"].values[0]
+            percs[day][ticker] = percentile(pdists[day][ticker], close)
+    return percs
+
+
 # download_all_tickers(END_DATE)
 # build_parq()
+
+print(pdist_perc("sim1", "pd1"))
