@@ -249,7 +249,29 @@ def pdist_perc(sim_name: str, pdists_name: str) -> dict:
     return percs
 
 
+SAMPLE_N = 10
+PDIST_NUMS = [1, 5]
+
+
+def rng_percs(N: int, perc_name: str):
+    path = SIM_FILES + "perc-" + perc_name + ".csv"
+    df = pandas.DataFrame(columns=["Date", "Ticker", "Day", "Perc"])
+    for i in range(0, N):
+        sim_name = "sim" + str(i)
+        build_rng_port(sim_name)
+        pdists = port_pdists(sim_name, PDIST_NUMS, SAMPLE_N)
+        pd_name = "pd" + str(i)
+        write_pdists(pdists, sim_name, pd_name)
+        percs = pdist_perc(sim_name, pd_name)
+        port = read_port(sim_name)
+        start_date = port["DATE"]
+        for day in percs:
+            for ticker in percs[day]:
+                df.loc[len(df)] = [start_date, ticker, day, percs[day][ticker]]
+        df.to_csv(path)
+
+
 # download_all_tickers(END_DATE)
 # build_parq()
 
-print(pdist_perc("sim1", "pd1"))
+rng_percs(10, "perc1")
